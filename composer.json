@@ -14,7 +14,6 @@
     "appsero/client": "1.2.1"
   },
   "require-dev": {
-		"phpcompatibility/phpcompatibility-wp": "^2.1",
     "codeception/module-asserts": "^1.3",
     "codeception/module-cli": "^1.1",
     "codeception/module-db": "^1.2",
