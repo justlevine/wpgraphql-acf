@@ -40,7 +40,7 @@
 
 	<!-- Rules: WPGraphQL Coding Standards -->
 	<!-- https://github.com/AxeWP/WPGraphQL-Coding-Standards/WPGraphQL/ruleset.xml -->
-	<rule ref="WPGraphQL-Minimum" />
+	<rule ref="WPGraphQL-Strict" />
 
 	<!-- Individual rule configuration -->
 	<rule ref="WordPress.Security.EscapeOutput">

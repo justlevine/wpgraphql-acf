@@ -31,6 +31,5 @@ class AcfOptionsPageLoader extends AbstractDataLoader {
 		}
 
 		return $response;
-
 	}
 }

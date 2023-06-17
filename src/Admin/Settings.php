@@ -7,8 +7,6 @@
 
 namespace WPGraphQLAcf\Admin;
 
-use Exception;
-use GraphQL\Error\Error;
 use WP_Post;
 use WPGraphQLAcf\AcfGraphQLFieldType;
 use WPGraphQLAcf\LocationRules;
@@ -48,17 +46,19 @@ class Settings {
 	 * Initialize ACF Settings for the plugin
 	 */
 	public function init(): void {
-
 		$this->is_acf6_or_higher = defined( 'ACF_MAJOR_VERSION' ) && version_compare( ACF_MAJOR_VERSION, '6', '>=' );
 
 		/**
 		 * Add settings to individual fields to allow each field granular control
 		 * over how it's shown in the GraphQL Schema
 		 */
-		add_filter( 'acf/field_group/additional_field_settings_tabs', static function ( $tabs ) {
-			$tabs['graphql'] = __( 'GraphQL', 'wp-graphql-acf' );
-			return $tabs;
-		});
+		add_filter(
+			'acf/field_group/additional_field_settings_tabs',
+			static function ( $tabs ) {
+				$tabs['graphql'] = __( 'GraphQL', 'wp-graphql-acf' );
+				return $tabs;
+			}
+		);
 
 		// Setup the Field Settings for each field type.
 		$this->setup_field_settings();
@@ -75,11 +75,14 @@ class Settings {
 			add_action( 'add_meta_boxes', [ $this, 'register_meta_boxes' ] );
 		} else {
 			add_action( 'acf/field_group/render_group_settings_tab/graphql', [ $this, 'display_graphql_field_group_fields' ] );
-			add_filter( 'acf/field_group/additional_group_settings_tabs', static function ( $tabs ) {
-				$tabs['graphql'] = __( 'GraphQL', 'wp-graphql-acf' );
+			add_filter(
+				'acf/field_group/additional_group_settings_tabs',
+				static function ( $tabs ) {
+					$tabs['graphql'] = __( 'GraphQL', 'wp-graphql-acf' );
 
-				return $tabs;
-			} );
+					return $tabs;
+				} 
+			);
 		}
 
 
@@ -100,7 +103,6 @@ class Settings {
 	 * @return void
 	 */
 	protected function setup_field_settings(): void {
-
 		if ( ! function_exists( 'acf_get_field_types' ) ) {
 			return;
 		}
@@ -115,16 +117,21 @@ class Settings {
 			$acf_field_types = array_keys( acf_get_field_types() );
 
 			if ( ! empty( $acf_field_types ) ) {
-
-				array_map( function ( $field_type ) {
-					add_action( 'acf/field_group/render_field_settings_tab/graphql/type=' . $field_type, function ( $acf_field ) use ( $field_type ) {
-						$this->add_field_settings( $acf_field, (string) $field_type );
-					}, 10, 1 );
-				}, $acf_field_types );
-
+				array_map(
+					function ( $field_type ) {
+						add_action(
+							'acf/field_group/render_field_settings_tab/graphql/type=' . $field_type,
+							function ( $acf_field ) use ( $field_type ) {
+								$this->add_field_settings( $acf_field, (string) $field_type );
+							},
+							10,
+							1 
+						);
+					},
+					$acf_field_types 
+				);
 			}
 		}
-
 	}
 
 	/**
@@ -133,7 +140,6 @@ class Settings {
 	 * @return void
 	 */
 	public function graphql_types_ajax_callback(): void {
-
 		if ( ! isset( $_POST['data'] ) ) {
 			echo esc_html( __( 'No location rules were found', 'wp-graphql-acf' ) );
 
@@ -166,12 +172,13 @@ class Settings {
 
 		$all_rules = $rules->get_rules();
 		if ( isset( $all_rules[ $group_name ] ) ) {
-			wp_send_json( [
-				'graphql_types' => array_values( $all_rules[ $group_name ] ),
-			] );
+			wp_send_json(
+				[
+					'graphql_types' => array_values( $all_rules[ $group_name ] ),
+				] 
+			);
 		}
 		wp_send_json( [ 'graphql_types' => null ] );
-
 	}
 
 	/**
@@ -180,10 +187,15 @@ class Settings {
 	 * @return void
 	 */
 	public function register_meta_boxes() {
-		add_meta_box( 'wpgraphql-acf-meta-box', __( 'GraphQL', 'wp-graphql-acf' ), [
-			$this,
-			'display_graphql_field_group_fields',
-		], [ 'acf-field-group' ] );
+		add_meta_box(
+			'wpgraphql-acf-meta-box',
+			__( 'GraphQL', 'wp-graphql-acf' ),
+			[
+				$this,
+				'display_graphql_field_group_fields',
+			],
+			[ 'acf-field-group' ] 
+		);
 	}
 
 
@@ -197,7 +209,6 @@ class Settings {
 	 * @throws \Exception
 	 */
 	public function display_graphql_field_group_fields( $field_group ): void {
-
 		if ( $field_group instanceof WP_Post ) {
 			$field_group = (array) $field_group;
 		}
@@ -304,13 +315,12 @@ class Settings {
 			}
 		</script>
 		<?php
-
 	}
 
 	/**
 	 * Add settings to each field to show in GraphQL
 	 *
-	 * @param array $field The field to add the setting to.
+	 * @param array       $field The field to add the setting to.
 	 * @param string|null $field_type The Type of field being configured.
 	 *
 	 * @return void
@@ -343,9 +353,7 @@ class Settings {
 		}
 
 		if ( ! empty( $admin_field_settings ) && is_array( $admin_field_settings ) ) {
-
 			foreach ( $admin_field_settings as $admin_field_setting_name => $admin_field_setting_config ) {
-
 				if ( empty( $admin_field_setting_config ) || ! is_array( $admin_field_setting_config ) ) {
 					continue;
 				}
@@ -367,8 +375,6 @@ class Settings {
 				acf_render_field_setting( $field, $setting_field_config, (bool) $setting_field_config['global'] );
 			}
 		}
-
-
 	}
 
 	/**
@@ -379,14 +385,17 @@ class Settings {
 	 * @return array
 	 */
 	public function get_graphql_non_null_field_config( array $override = [] ): array {
-		return array_merge( [
-			'label'         => __( 'GraphQL NonNull?', 'wp-graphql-acf' ),
-			'instructions'  => __( 'Whether the field should be non-null in the GraphQL Schema. Entries that do not have a value for this field will result in a GraphQL error. Default false, even for "required" fields, as a field can be set required after previous entries have no data entered for the field and would cause errors. Changing this value can lead to breaking changes in your GraphQL Schema.', 'wp-graphql-acf' ),
-			'name'          => 'graphql_non_null',
-			'key'           => 'graphql_non_null',
-			'type'          => 'true_false',
-			'default_value' => false,
-		], $override );
+		return array_merge(
+			[
+				'label'         => __( 'GraphQL NonNull?', 'wp-graphql-acf' ),
+				'instructions'  => __( 'Whether the field should be non-null in the GraphQL Schema. Entries that do not have a value for this field will result in a GraphQL error. Default false, even for "required" fields, as a field can be set required after previous entries have no data entered for the field and would cause errors. Changing this value can lead to breaking changes in your GraphQL Schema.', 'wp-graphql-acf' ),
+				'name'          => 'graphql_non_null',
+				'key'           => 'graphql_non_null',
+				'type'          => 'true_false',
+				'default_value' => false,
+			],
+			$override 
+		);
 	}
 
 	/**
@@ -397,25 +406,28 @@ class Settings {
 	 * @return array
 	 */
 	public function get_graphql_resolve_type_field_config( array $override = [] ): array {
-		return array_merge( [
-			'label'         => __( 'GraphQL Resolve Type', 'wp-graphql-acf' ),
-			'instructions'  => __( 'The GraphQL Type the field will show in the Schema as and resolve to.', 'wp-graphql-acf' ),
-			'name'          => 'graphql_resolve_type',
-			'key'           => 'graphql_resolve_type',
-			'type'          => 'select',
-			'multiple'      => false,
-			'ui'            => false,
-			'allow_null'    => false,
-			'default_value' => 'list:string',
-			'choices'       => [
-				'string'      => 'String',
-				'int'         => 'Int',
-				'float'       => 'Float',
-				'list:string' => '[String] (List of Strings)',
-				'list:int'    => '[Int] (List of Integers)',
-				'list:float'  => '[Float] (List of Floats)',
+		return array_merge(
+			[
+				'label'         => __( 'GraphQL Resolve Type', 'wp-graphql-acf' ),
+				'instructions'  => __( 'The GraphQL Type the field will show in the Schema as and resolve to.', 'wp-graphql-acf' ),
+				'name'          => 'graphql_resolve_type',
+				'key'           => 'graphql_resolve_type',
+				'type'          => 'select',
+				'multiple'      => false,
+				'ui'            => false,
+				'allow_null'    => false,
+				'default_value' => 'list:string',
+				'choices'       => [
+					'string'      => 'String',
+					'int'         => 'Int',
+					'float'       => 'Float',
+					'list:string' => '[String] (List of Strings)',
+					'list:int'    => '[Int] (List of Integers)',
+					'list:float'  => '[Float] (List of Floats)',
+				],
 			],
-		], $override );
+			$override 
+		);
 	}
 
 	/**
@@ -448,10 +460,13 @@ class Settings {
 			true
 		);
 
-		wp_localize_script( 'graphql-acf', 'wp_graphql_acf', [
-			'nonce' => wp_create_nonce( 'wp_graphql_acf' ),
-		]);
-
+		wp_localize_script(
+			'graphql-acf',
+			'wp_graphql_acf',
+			[
+				'nonce' => wp_create_nonce( 'wp_graphql_acf' ),
+			]
+		);
 	}
 
 	/**
@@ -462,7 +477,6 @@ class Settings {
 	 * @return array The column headers with the added wp-graphql columns
 	 */
 	public function wpgraphql_admin_table_column_headers( array $_columns ): array {
-
 		$columns  = [];
 		$is_added = false;
 

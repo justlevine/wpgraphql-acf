@@ -1,7 +1,6 @@
 <?php
 namespace WPGraphQLAcf;
 
-use Codeception\PHPUnit\Constraint\Page;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQLAcf\Admin\Settings;
@@ -43,7 +42,7 @@ class AcfGraphQLFieldType {
 	/**
 	 * Constructor.
 	 *
-	 * @param string $acf_field_type The name of the ACF Field Type
+	 * @param string         $acf_field_type The name of the ACF Field Type
 	 * @param array|callable $config The config for how tha ACF Field Type should map to the WPGraphQL Schema and display Admin settings for the field.
 	 */
 	public function __construct( string $acf_field_type, $config = [] ) {
@@ -59,7 +58,6 @@ class AcfGraphQLFieldType {
 	 * @return void
 	 */
 	public function set_config( $config = [] ): void {
-
 		if ( is_array( $config ) ) {
 			$this->config = $config;
 		} elseif ( is_callable( $config ) ) {
@@ -78,7 +76,6 @@ class AcfGraphQLFieldType {
 	 * @return mixed
 	 */
 	public function get_config( ?string $setting_name = null ) {
-
 		if ( empty( $setting_name ) || ! is_array( $this->config ) ) {
 			return $this->config;
 		}
@@ -89,13 +86,12 @@ class AcfGraphQLFieldType {
 	/**
 	 * Return Admin Field Settings for configuring GraphQL Behavior.
 	 *
-	 * @param array $field The Instance of the ACF Field the settings are for
+	 * @param array                        $field The Instance of the ACF Field the settings are for
 	 * @param \WPGraphQLAcf\Admin\Settings $settings The Settings class
 	 *
 	 * @return mixed|void
 	 */
 	public function get_admin_field_settings( array $field, Settings $settings ) {
-
 		$default_admin_settings = [];
 
 		// If there's a description provided, use it.
@@ -195,18 +191,16 @@ class AcfGraphQLFieldType {
 		}
 
 		return apply_filters( 'graphql_acf_field_type_admin_settings', $admin_fields );
-
 	}
 
 	/**
-	 * @param array $acf_field The ACF Field to get the settings for
-	 * @param array $default_admin_settings The default admin settings
+	 * @param array                        $acf_field The ACF Field to get the settings for
+	 * @param array                        $default_admin_settings The default admin settings
 	 * @param \WPGraphQLAcf\Admin\Settings $settings Instance of the Settings class
 	 *
 	 * @return array
 	 */
 	public function get_admin_fields( array $acf_field, array $default_admin_settings, Settings $settings ): array {
-
 		if ( ! empty( $this->admin_fields ) ) {
 			return $this->admin_fields;
 		}
@@ -247,7 +241,6 @@ class AcfGraphQLFieldType {
 	 * @return void
 	 */
 	protected function set_excluded_admin_field_settings():void {
-
 		$this->excluded_admin_field_settings = [];
 
 		if ( empty( $excluded_admin_fields = $this->get_config( 'exclude_admin_fields' ) ) ) {
@@ -269,17 +262,16 @@ class AcfGraphQLFieldType {
 	}
 
 	/**
-	 * @param mixed               $root The value of the previously resolved field in the tree
-	 * @param array               $args The arguments input on the field
-	 * @param \WPGraphQL\AppContext $context The Context passed through resolution
+	 * @param mixed                                $root The value of the previously resolved field in the tree
+	 * @param array                                $args The arguments input on the field
+	 * @param \WPGraphQL\AppContext                $context The Context passed through resolution
 	 * @param \GraphQL\Type\Definition\ResolveInfo $info Information about the field resolving
-	 * @param \WPGraphQLAcf\AcfGraphQLFieldType $field_type The Type of ACF Field resolving
-	 * @param \WPGraphQLAcf\FieldConfig $field_config The Config of the ACF Field resolving
+	 * @param \WPGraphQLAcf\AcfGraphQLFieldType    $field_type The Type of ACF Field resolving
+	 * @param \WPGraphQLAcf\FieldConfig            $field_config The Config of the ACF Field resolving
 	 *
 	 * @return array|callable|mixed|null
 	 */
-	public function get_resolver( $root, array $args, AppContext $context, ResolveInfo $info, AcfGraphQLFieldType $field_type, FieldConfig $field_config ) {
-
+	public function get_resolver( $root, array $args, AppContext $context, ResolveInfo $info, self $field_type, FieldConfig $field_config ) {
 		$acf_field = $field_config->get_acf_field();
 
 		$resolver = $field_config->resolve_field( $root, $args, $context, $info );
@@ -287,7 +279,6 @@ class AcfGraphQLFieldType {
 		if ( isset( $acf_field['graphql_resolver'] ) ) {
 			$resolver = $acf_field['graphql_resolver'];
 		} elseif ( ! empty( $this->get_config( 'resolve' ) ) ) {
-
 			if ( is_callable( $this->get_config( 'resolve' ) ) ) {
 				$resolver = $this->get_config( 'resolve' )( $root, $args, $context, $info, $field_type, $field_config );
 			} else {
@@ -296,7 +287,6 @@ class AcfGraphQLFieldType {
 		}
 
 		return $resolver;
-
 	}
 
 	/**
@@ -305,7 +295,6 @@ class AcfGraphQLFieldType {
 	 * @return array|string
 	 */
 	public function get_resolve_type( FieldConfig $field_config ) {
-
 		$acf_field = $field_config->get_acf_field();
 
 		$resolve_type = 'String';
@@ -313,7 +302,6 @@ class AcfGraphQLFieldType {
 		if ( isset( $acf_field['graphql_resolve_type'] ) ) {
 			$resolve_type = $acf_field['graphql_resolve_type'];
 		} elseif ( ! empty( $this->get_config( 'graphql_type' ) ) ) {
-
 			if ( is_callable( $this->get_config( 'graphql_type' ) ) ) {
 				$resolve_type = $this->get_config( 'graphql_type' )( $field_config, $this );
 			} else {
