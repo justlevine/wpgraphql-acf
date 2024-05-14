@@ -2,7 +2,6 @@
 
 namespace WPGraphQLAcf\Model;
 
-use Exception;
 use GraphQLRelay\Relay;
 use WPGraphQL\Model\Model;
 use WPGraphQL\Utils\Utils;

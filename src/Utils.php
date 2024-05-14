@@ -1,7 +1,6 @@
 <?php
 namespace WPGraphQLAcf;
 
-use Exception;
 use WPGraphQL\Model\Comment;
 use WPGraphQL\Model\Menu;
 use WPGraphQL\Model\MenuItem;
@@ -67,14 +66,12 @@ class Utils {
 	 * @return \WPGraphQLAcf\FieldTypeRegistry
 	 */
 	public static function get_type_registry(): FieldTypeRegistry {
-
 		if ( self::$type_registry instanceof FieldTypeRegistry ) {
 			return self::$type_registry;
 		}
 
 		self::$type_registry = new FieldTypeRegistry();
 		return self::$type_registry;
-
 	}
 
 	/**
@@ -85,9 +82,7 @@ class Utils {
 	 * @return \WPGraphQLAcf\AcfGraphQLFieldType|null
 	 */
 	public static function get_graphql_field_type( string $acf_field_type ): ?AcfGraphQLFieldType {
-
 		return self::get_type_registry()->get_field_type( $acf_field_type );
-
 	}
 
 	/**
@@ -101,7 +96,6 @@ class Utils {
 	 * @return array
 	 */
 	public static function get_supported_acf_fields_types(): array {
-
 		$registry               = self::get_type_registry();
 		$registered_fields      = $registry->get_registered_field_types();
 		$registered_field_names = array_keys( $registered_fields );
@@ -157,13 +151,14 @@ class Utils {
 		];
 
 		foreach ( $interfaces as $interface_name => $config ) {
-
-			$interface_query = graphql([
-				'query'     => $query,
-				'variables' => [
-					'name' => $interface_name,
-				],
-			]);
+			$interface_query = graphql(
+				[
+					'query'     => $query,
+					'variables' => [
+						'name' => $interface_name,
+					],
+				]
+			);
 
 			$possible_types = is_array( $interface_query ) && ! empty( $interface_query['data']['__type']['possibleTypes'] ) ? $interface_query['data']['__type']['possibleTypes'] : [];
 
@@ -226,7 +221,6 @@ class Utils {
 	 * @return bool
 	 */
 	public static function should_field_group_show_in_graphql( array $acf_field_group ): bool {
-
 		$should = true;
 
 
@@ -246,7 +240,6 @@ class Utils {
 		}
 
 		return (bool) apply_filters( 'graphql_acf_should_field_group_show_in_graphql', $should, $acf_field_group );
-
 	}
 
 	/**
@@ -258,7 +251,6 @@ class Utils {
 	 * @return string
 	 */
 	public static function get_field_group_name( array $field_group ): string {
-
 		$field_group_name = '';
 
 		if ( ! empty( $field_group['graphql_field_name'] ) ) {
@@ -286,21 +278,23 @@ class Utils {
 		$starts_with_string = is_numeric( substr( $field_group_name, 0, 1 ) );
 
 		if ( $starts_with_string ) {
-			graphql_debug( __( 'The ACF Field or Field Group could not be added to the schema. GraphQL Field and Type names cannot start with a number', 'wp-graphql-acf' ), [
-				'invalid' => $field_group,
-			] );
+			graphql_debug(
+				__( 'The ACF Field or Field Group could not be added to the schema. GraphQL Field and Type names cannot start with a number', 'wp-graphql-acf' ),
+				[
+					'invalid' => $field_group,
+				] 
+			);
 			return '';
 		}
 
 		return $field_group_name;
-
 	}
 
 	/**
 	 * Returns string of the items in the array list. Limit allows string to be limited length.
 	 *
 	 * @param array $list
-	 * @param int $limit
+	 * @param int   $limit
 	 *
 	 * @return string
 	 */

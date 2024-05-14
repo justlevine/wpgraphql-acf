@@ -2,7 +2,6 @@
 
 use WPGraphQL\Registry\TypeRegistry;
 use WPGraphQLAcf\Admin\PostTypeRegistration;
-use WPGraphQLAcf\Admin\Settings;
 use WPGraphQLAcf\Admin\TaxonomyRegistration;
 use WPGraphQLAcf\Registry;
 use WPGraphQLAcf\ThirdParty;
@@ -42,7 +41,6 @@ class WPGraphQLAcf {
 
 
 		do_action( 'graphql_acf_init' );
-
 	}
 
 	/**
@@ -59,8 +57,6 @@ class WPGraphQLAcf {
 	public function init_admin_settings(): void {
 		$this->admin_settings = new WPGraphQLAcf\Admin\Settings();
 		$this->admin_settings->init();
-
-
 	}
 
 	/**
@@ -100,7 +96,6 @@ class WPGraphQLAcf {
 		}
 
 		$registry->register_acf_field_groups_to_graphql( $acf_field_groups );
-
 	}
 
 	/**
@@ -109,7 +104,6 @@ class WPGraphQLAcf {
 	 * @return array
 	 */
 	public function get_plugin_load_error_messages(): array {
-
 		if ( ! empty( $this->plugin_load_error_messages ) ) {
 			return $this->plugin_load_error_messages;
 		}
@@ -129,7 +123,6 @@ class WPGraphQLAcf {
 		}
 
 		return $this->plugin_load_error_messages;
-
 	}
 
 	/**
@@ -139,7 +132,6 @@ class WPGraphQLAcf {
 	 * @return void
 	 */
 	public function show_admin_notice(): void {
-
 		$can_load_messages = $this->get_plugin_load_error_messages();
 
 		/**
@@ -151,7 +143,7 @@ class WPGraphQLAcf {
 
 		add_action(
 			'admin_notices',
-			function () use ( $can_load_messages ) {
+			static function () use ( $can_load_messages ) {
 				?>
 				<div class="error notice">
 					<h3><?php echo esc_html( sprintf( __( 'WPGraphQL for Advanced Custom Fields v%s cannot load', 'wp-graphql-acf' ), WPGRAPHQL_FOR_ACF_VERSION ) ); ?></h3>
@@ -197,7 +189,6 @@ class WPGraphQLAcf {
 	 * @return void
 	 */
 	public function show_graphql_debug_messages(): void {
-
 		$messages = $this->get_plugin_load_error_messages();
 
 		if ( empty( $messages ) ) {

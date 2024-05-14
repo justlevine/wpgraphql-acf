@@ -2,8 +2,6 @@
 
 namespace WPGraphQLAcf;
 
-use Exception;
-use GraphQL\Error\Error;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\Connection\PostObjectConnectionResolver;
@@ -44,7 +42,6 @@ class FieldConfig {
 	 * @throws \GraphQL\Error\Error
 	 */
 	public function __construct( array $acf_field, array $acf_field_group, Registry $registry ) {
-
 		$this->acf_field                     = $acf_field;
 		$this->acf_field_group               = $acf_field_group;
 		$this->registry                      = $registry;
@@ -163,12 +160,10 @@ class FieldConfig {
 
 
 		if ( ! empty( $this->acf_field['type'] ) ) {
-
 			$graphql_field_type = $this->get_graphql_field_type();
 
 			// If the field type overrode the resolver, use it
 			if ( null !== $graphql_field_type && method_exists( $graphql_field_type, 'get_resolver' ) ) {
-
 				$resolver                = function ( $root, $args, AppContext $context, ResolveInfo $info ) use ( $graphql_field_type ) {
 					return $graphql_field_type->get_resolver( $root, $args, $context, $info, $graphql_field_type, $this );
 				};
@@ -193,7 +188,6 @@ class FieldConfig {
 			}
 
 			switch ( $this->acf_field['type'] ) {
-
 				case 'color_picker':
 				case 'number':
 				case 'range':
@@ -233,29 +227,34 @@ class FieldConfig {
 					break;
 
 				case 'relationship':
-					$this->register_graphql_connections( [
-						'toType'  => 'ContentNode',
-						'resolve' => function ( $root, $args, AppContext $context, $info ) {
-							$value = $this->resolve_field( $root, $args, $context, $info );
+					$this->register_graphql_connections(
+						[
+							'toType'  => 'ContentNode',
+							'resolve' => function ( $root, $args, AppContext $context, $info ) {
+								$value = $this->resolve_field( $root, $args, $context, $info );
 
-							if ( empty( $value ) || ! is_array( $value ) ) {
-								return null;
-							}
+								if ( empty( $value ) || ! is_array( $value ) ) {
+									return null;
+								}
 
-							$value = array_map(static function ( $id ) {
-								return absint( $id );
-							}, $value );
+								$value = array_map(
+									static function ( $id ) {
+										return absint( $id );
+									},
+									$value 
+								);
 
-							$resolver = new PostObjectConnectionResolver( $root, $args, $context, $info, 'any' );
-							return $resolver
+								$resolver = new PostObjectConnectionResolver( $root, $args, $context, $info, 'any' );
+								return $resolver
 								// the relationship field doesn't require related things to be published
 								// so we set the status to "any"
 								->set_query_arg( 'post_status', 'any' )
 								->set_query_arg( 'post__in', $value )
 								->set_query_arg( 'orderby', 'post__in' )
 								->get_connection();
-						},
-					] );
+							},
+						] 
+					);
 					$field_config = null;
 					break;
 				default:
@@ -284,13 +283,12 @@ class FieldConfig {
 		];
 
 		return in_array( $field_type, $types_to_format, true );
-
 	}
 
 	/**
-	 * @param mixed       $root
-	 * @param array       $args
-	 * @param \WPGraphQL\AppContext $context
+	 * @param mixed                                $root
+	 * @param array                                $args
+	 * @param \WPGraphQL\AppContext                $context
 	 * @param \GraphQL\Type\Definition\ResolveInfo $info
 	 *
 	 * @return mixed
@@ -359,7 +357,6 @@ class FieldConfig {
 		 * @param mixed $node_id The ID of the node being resolved
 		 */
 		return apply_filters( 'graphql_acf_field_value', $value, $field_config, $root, $node_id );
-
 	}
 
 	/**
@@ -374,7 +371,6 @@ class FieldConfig {
 	 * @return mixed
 	 */
 	public function prepare_acf_field_value( $value, $root, $node_id, array $acf_field_config ) {
-
 		if ( isset( $acf_field_config['new_lines'] ) ) {
 			if ( 'wpautop' === $acf_field_config['new_lines'] ) {
 				$value = wpautop( $value );
@@ -393,12 +389,15 @@ class FieldConfig {
 			}
 		}
 
-		if ( ! empty( $acf_field_config['type'] ) && in_array( $acf_field_config['type'], [
-			'date_picker',
-			'time_picker',
-			'date_time_picker',
-		], true ) ) {
-
+		if ( ! empty( $acf_field_config['type'] ) && in_array(
+			$acf_field_config['type'],
+			[
+				'date_picker',
+				'time_picker',
+				'date_time_picker',
+			],
+			true 
+		) ) {
 			if ( ! empty( $value ) && ! empty( $acf_field_config['return_format'] ) ) {
 				$value = date( $acf_field_config['return_format'], strtotime( $value ) );
 			}
@@ -409,7 +408,6 @@ class FieldConfig {
 		}
 
 		return $value;
-
 	}
 
 	/**
@@ -431,7 +429,6 @@ class FieldConfig {
 	 * @throws \Exception
 	 */
 	public function register_graphql_connections( array $config ): void {
-
 		$type_name = $this->get_graphql_field_group_type_name();
 		$to_type   = $config['toType'] ?? null;
 
@@ -442,23 +439,25 @@ class FieldConfig {
 
 		$connection_name = $this->get_connection_name( $type_name, $to_type, $this->get_graphql_field_name() );
 
-		$connection_config = array_merge( [
-			'description'           => $this->get_field_description(),
-			'acf_field'             => $this->get_acf_field(),
-			'acf_field_group'       => $this->get_acf_field_group(),
-			'fromType'              => $type_name,
-			'toType'                => $to_type,
-			'connectionTypeName'    => $connection_name,
-			'fromFieldName'         => $this->get_graphql_field_name(),
-			'allowFieldUnderscores' => true,
-		], $config );
+		$connection_config = array_merge(
+			[
+				'description'           => $this->get_field_description(),
+				'acf_field'             => $this->get_acf_field(),
+				'acf_field_group'       => $this->get_acf_field_group(),
+				'fromType'              => $type_name,
+				'toType'                => $to_type,
+				'connectionTypeName'    => $connection_name,
+				'fromFieldName'         => $this->get_graphql_field_name(),
+				'allowFieldUnderscores' => true,
+			],
+			$config 
+		);
 
 		// Register the connection to the Field Group Type
 		register_graphql_connection( $connection_config );
 
 		// Register the connection to the Field Group Fields Interface
 		register_graphql_connection( array_merge( $connection_config, [ 'fromType' => $type_name . '_Fields' ] ) );
-
 	}
 
 }

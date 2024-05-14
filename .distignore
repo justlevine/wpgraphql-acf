@@ -18,7 +18,6 @@ phpunit.xml
 phpunit.xml.dist
 multisite.xml
 multisite.xml.dist
-phpcs.ruleset.xml
 README.md
 wp-cli.local.yml
 tests

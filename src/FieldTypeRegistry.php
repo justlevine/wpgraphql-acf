@@ -100,7 +100,6 @@ class FieldTypeRegistry {
 		Url::register_field_type();
 		User::register_field_type();
 		Wysiwyg::register_field_type();
-
 	}
 
 	/**
@@ -136,13 +135,12 @@ class FieldTypeRegistry {
 	/**
 	 * Register an ACF Field Type
 	 *
-	 * @param string $acf_field_type The name of the ACF Field Type to map to the GraphQL Schema
+	 * @param string         $acf_field_type The name of the ACF Field Type to map to the GraphQL Schema
 	 * @param array|callable $config Config for mapping the ACF Field Type to the GraphQL Schema
 	 *
 	 * @return \WPGraphQLAcf\AcfGraphQLFieldType
 	 */
 	public function register_field_type( string $acf_field_type, $config = [] ): AcfGraphQLFieldType {
-
 		if ( isset( $this->registered_field_types[ $acf_field_type ] ) ) {
 			return $this->registered_field_types[ $acf_field_type ];
 		}
@@ -150,7 +148,6 @@ class FieldTypeRegistry {
 		$this->registered_field_types[ $acf_field_type ] = new AcfGraphQLFieldType( $acf_field_type, $config );
 
 		return $this->registered_field_types[ $acf_field_type ];
-
 	}
 
 }
